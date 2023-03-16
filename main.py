@@ -60,11 +60,7 @@ class Blockchain():
             query = """INSERT INTO blockchain(block_id,hash) VALUES(?,?) """
             new_block = [(next_number, hash_this_block)]
             cursor.executemany(query, new_block)
-            print('New block in writed!')
-
-        os.system('cls')
-        print("Creating block,please waiting!")
-
+            
         os.system('cls')
         print("Creating block,please waiting!")
 

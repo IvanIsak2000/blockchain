@@ -5,8 +5,13 @@ from datetime import datetime
 import time
 import pytz
 import ast
+<<<<<<< HEAD
 from pathlib import Path
 import sqlite3
+=======
+import re
+from pathlib import Path
+>>>>>>> 5f4ba0189c4286bdad2661bb418244a335e1f244
 
 from tqdm import trange
 
@@ -25,10 +30,19 @@ class Blockchain():
             if _file.endswith(".txt"):
                 list_block.append(int(_file.split('.')[0]))
 
+<<<<<<< HEAD
         with open(f'{transactions_folder}/{sorted(list_block)[-1]}.txt', 'rb') as pre_block:
             pre_block = pre_block.read()
             pre_hash = hashlib.md5(pre_block).hexdigest()
         return (pre_hash, max(list_block)+1)
+=======
+        new_number_of_block = max(list_block) + 1
+
+        with open(f'{transactions_folder}/{sorted(list_block)[-1]}.txt', 'rb') as pre_block:
+            pre_block = pre_block.read()
+            pre_hash = hashlib.md5(pre_block).hexdigest()
+        return (pre_hash, new_number_of_block)
+>>>>>>> 5f4ba0189c4286bdad2661bb418244a335e1f244
 
     def create_block(self, from_whom, amount, to_whom, pre_hash, next_number):
         self.from_whom = from_whom
@@ -44,6 +58,7 @@ class Blockchain():
             data = f'From:{from_whom}\nAmount:{amount}\nTo whom:{to_whom}\nTime:{time_of_creation}\nHash:{pre_hash}'
             next_block.write(data)
 
+<<<<<<< HEAD
 
         with open(f'{transactions_folder}/{next_number}.txt', 'rb') as this_block:
             this_block = this_block.read()
@@ -61,10 +76,15 @@ class Blockchain():
         os.system('cls')
         print("Creating block,please waiting!")
         
+=======
+        os.system('cls')
+        print("Creating block,please waiting!")
+>>>>>>> 5f4ba0189c4286bdad2661bb418244a335e1f244
 
         for i in trange(100):
             time.sleep(0.01)
 
+<<<<<<< HEAD
         os.system('cls')
 
         return print(
@@ -138,4 +158,27 @@ if __name__ == '__main__':
 
 
     for_exit = input('Press to exit...')
+=======
+        return print(
+            f'All done! Block with number {next_number} is created!\nYour data:\nFrom:{from_whom}\nAmount:{amount}\nTo whom:{to_whom}\nTime:{time_of_creation}')
+
+
+if __name__ == '__main__':
+    from_whom = input('Enter your name: ')
+    amount = input('Enter your amount: ')
+    to_whom = input('Enter to whom: ')
+
+    blockchain = Blockchain()
+
+    pre_new_and_next_block_number = blockchain.calculating_last_hash_and_number()
+
+    next_block = blockchain.create_block(
+        from_whom,
+        amount,
+        to_whom,
+        pre_new_and_next_block_number[0],
+        pre_new_and_next_block_number[1])
+
+    for_exit = input('Enter to exit...')
+>>>>>>> 5f4ba0189c4286bdad2661bb418244a335e1f244
     sys.exit()

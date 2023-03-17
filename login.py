@@ -3,10 +3,12 @@ import sqlite3
 import os
 import sys
 import hashlib
+import re
 
 from string import *
 import dearpygui.dearpygui as dpg
 from genp import password_generation
+
 
 dpg.create_context()
 dpg.create_viewport()
@@ -78,32 +80,21 @@ with dpg.window(label=None, width=500, height=550, tag='Primary Window') as logi
                 if account_name_from_db == new_login:
                     found_duplicate_login = True
 
-            special_characters_for_check_new_login = "!@#$%^&*()-+?_=,<>/"
-            if any(
-                    symbol in special_characters_for_check_new_login for symbol in new_login):
-                spec_symbols_in_new_login = True
-
             if not found_duplicate_login:
-                if len(new_login) > 6 and len(new_login) < 30:
-                    if not spec_symbols_in_new_login and not spec_symbols_in_new_login and not new_login.isspace(
-                    ) and ' ' not in new_login:
-                        with sqlite3.connect("blockchain_accounts.db") as db:
 
-                            cursor = db.cursor()
-                            query = """INSERT INTO accounts(login,hash) VALUES(?,?) """
-                            new_account = [(new_login, password_hash)]
-                            cursor.executemany(query, new_account)
-                            print('Data added!')
-                            print(
-                                f'CREATE NEW ACCOUNT!\nLogin:{new_login}\nPassword:{new_password}')
-                    else:
+                if len(new_login) > 6 and len(
+                        new_login) < 20 and new_login.isalpha():
+                    with sqlite3.connect("blockchain_accounts.db") as db:
+
+                        cursor = db.cursor()
+                        query = """INSERT INTO accounts(login,hash) VALUES(?,?) """
+                        new_account = [(new_login, password_hash)]
+                        cursor.executemany(query, new_account)
+                        print('Data added!')
                         print(
-                            f'Your password must not contain special characters! SHOULD NOT BE:{punctuation}')
+                            f'CREATE NEW ACCOUNT!\nLogin:{new_login}\nPassword:{new_password}')
                 else:
-                    print(
-                        f'Login must be more than 6 and not more than 30 characters! Your login len:{len(new_login)}')
-            else:
-                print(f"!!!Account named {new_login} exists!!!")
+                    print('Not vaild data!')
 
     with dpg.menu_bar():
         with dpg.menu(label='Login'):
@@ -120,7 +111,7 @@ with dpg.window(label=None, width=500, height=550, tag='Primary Window') as logi
             dpg.add_button(label='Create account?', callback=create_account)
             with dpg.tooltip('login'):
                 dpg.add_text(
-                    '''Your login must be more than 6 and less than 30 characters, must not contain spaces and special characters!''')
+                    '''Your login must be more than 6 and less than 20 characters, must not contain spaces and special characters!''')
 
 
 dpg.set_primary_window(login_window, True)

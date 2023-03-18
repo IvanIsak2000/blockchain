@@ -39,12 +39,13 @@ with dpg.window(label=None, width=500, height=550, tag='Primary Window') as logi
         cursor.execute(query_start)
         print('db OK')
 
-    def login_in_account(user_name, user_password):
-        user_name = dpg.get_value('account-name')
+    def login_in_account(login, user_password):
+        login = dpg.get_value('login')
 
-        user_password = dpg.get_value('account-password')
+        user_password = dpg.get_value('password')
 
         user_password = str(hash(user_password))  # hashed password
+        print(user_password)
 
         with sqlite3.connect('blockchain_accounts.db') as db:
             cursor = db.cursor()
@@ -52,15 +53,15 @@ with dpg.window(label=None, width=500, height=550, tag='Primary Window') as logi
             cursor.execute(query_check)
 
             for login_in_db, hash_in_db in cursor:
-                if user_name == login_in_db and user_password == hash_in_db:
-                    print('Logined!')
+                if login == login_in_db and user_password == hash_in_db:
+                    return print('Logined!')
                     login()
 
                 else:
-                    print('Wrong data!')
+                    return print('Wrong data!')
 
-    def create_account():
-        new_login = dpg.get_value('login')
+    def create_account(new_login):
+        new_login = dpg.get_value('new_login')
         new_password = password_generation(True, True, False, 25)
 
         password_hash = str(hash(new_password))  # hashed password
@@ -86,25 +87,25 @@ with dpg.window(label=None, width=500, height=550, tag='Primary Window') as logi
                         query = """INSERT INTO accounts(login,hash) VALUES(?,?) """
                         new_account = [(new_login, password_hash)]
                         cursor.executemany(query, new_account)
-                        print('Data added!')
-                        print(
+                 
+                        return print(
                             f'CREATE NEW ACCOUNT!\nLogin:{new_login}\nPassword:{new_password}')
                 else:
-                    print('Not vaild data!')
+                    return print('Not vaild data!')
             else:
-            	print('This login already exists!')
+            	return print('This login already exists!')
     with dpg.menu_bar():
         with dpg.menu(label='Login'):
             dpg.add_text('\nLogin')
-            user_name = (dpg.add_input_text(tag='account-name'))
-            user_password = (dpg.add_input_text(tag='account-password'))
+            login = (dpg.add_input_text(tag='login'))
+            user_password = (dpg.add_input_text(tag='password'))
 
             dpg.add_button(label='OK', callback=login_in_account)
 
         with dpg.menu(label='Create account'):
             dpg.add_text('Enter your new account name:')
 
-            dpg.add_input_text(tag='login')
+            dpg.add_input_text(tag='new_login')
             dpg.add_button(label='Create account?', callback=create_account)
             with dpg.tooltip('login'):
                 dpg.add_text(

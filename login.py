@@ -51,11 +51,8 @@ with dpg.window(label=None, width=500, height=550, tag='Primary Window') as logi
             query_check = """ SELECT login,hash FROM accounts"""
             cursor.execute(query_check)
 
-            successful_login = False
-
             for login_in_db, hash_in_db in cursor:
                 if user_name == login_in_db and user_password == hash_in_db:
-                    successful_login = True
                     print('Logined!')
                     login()
 
@@ -72,9 +69,8 @@ with dpg.window(label=None, width=500, height=550, tag='Primary Window') as logi
             cursor = db.cursor()
             query_check = """SELECT login,hash FROM accounts"""
             cursor.execute(query_check)
-            print(cursor)
+
             found_duplicate_login = False
-            spec_symbols_in_new_login = False
 
             for account_name_from_db, account_password_from_db in cursor:
                 if account_name_from_db == new_login:
@@ -95,7 +91,8 @@ with dpg.window(label=None, width=500, height=550, tag='Primary Window') as logi
                             f'CREATE NEW ACCOUNT!\nLogin:{new_login}\nPassword:{new_password}')
                 else:
                     print('Not vaild data!')
-
+            else:
+            	print('This login already exists!')
     with dpg.menu_bar():
         with dpg.menu(label='Login'):
             dpg.add_text('\nLogin')

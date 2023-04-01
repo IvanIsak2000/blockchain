@@ -160,4 +160,4 @@ cython_debug/
 .idea/
 
 transactions/
-blockchain.db
+*.db

@@ -1,153 +1,170 @@
 #!/usr/bin/env python3
 import hashlib
-import sys
 import os
 from datetime import datetime
+from dataclasses import dataclass
 import time
-import pytz
-import ast
 from pathlib import Path
-import sqlite3
+import pytz
+from sqlite3 import connect
 from pathlib import Path
 from tqdm import trange
 
 
-class Blockchain():
-
-    def calculating_last_hash_and_number(self):
-        global transactions_folder
-        transactions_folder = 'transactions'
-        if not os.path.exists(transactions_folder):
-            os.makedirs(transactions_folder)
-            with open(f"{transactions_folder}/1.txt", "w") as file:
-                file.write("This genesis block!")
-
-        '''
-        In short, if there is no transactions folder,
-        then we create it in short and add the first
-        block to it (in the blockchain it is called genesis)
-        '''
-
-        list_blocks = []
-        for _file in os.listdir(transactions_folder):
-            if _file.endswith(".txt"):
-                list_blocks.append(int(_file.split('.')[0]))
-
-        with open(f'{transactions_folder}/{sorted(list_blocks)[-1]}.txt', 'rb') as pre_block:
-            pre_block = pre_block.read()
-            pre_hash = hashlib.md5(pre_block).hexdigest()
-
-        return (pre_hash, max(list_blocks)+1)
-
-    def create_block(self, from_whom, amount, to_whom, pre_hash, next_number):
-        self.from_whom = from_whom
-        self.amount = amount
-        self.to_whom = to_whom
-        self.pre_hash = pre_hash
-        self.next_number = next_number
-
-        time_of_creation = datetime.now(
-            pytz.timezone('Europe/Moscow')).strftime("%H:%M:%S %Y-%m-%d")
-
-        with open(f'{transactions_folder}/{next_number}.txt', 'w') as next_block:
-            data = f'From:{from_whom}\nAmount:{amount}\nTo whom:{to_whom}\nTime:{time_of_creation}\nHash:{pre_hash}'
-            next_block.write(data)
-
-        with open(f'{transactions_folder}/{next_number}.txt', 'rb') as this_block:
-            this_block = this_block.read()
-            hash_this_block = hashlib.md5(this_block).hexdigest()
-
-        with sqlite3.connect("blockchain.db") as db:
-            cursor = db.cursor()
-            query = """INSERT INTO blockchain(block_id,hash) VALUES(?,?) """
-            new_block = [(next_number, hash_this_block)]
-            cursor.executemany(query, new_block)
-
-        os.system('cls')
-        print("Creating block,please waiting!")
-
-        for i in trange(100):
-            time.sleep(0.01)
-
-        os.system('cls')
-
-        return print(
-            f'All done! Block with number {next_number} is created!\nYour data:\nFrom:{from_whom}\nAmount:{amount}\nTo whom:{to_whom}\nTime:{time_of_creation}')
-
-    def checking_blocks(self):
-        global transactions_folder
-        transactions_folder = 'transactions'
-        with sqlite3.connect('blockchain.db') as db:
-            cursor = db.cursor()
-            query = """SELECT block_id,hash FROM blockchain"""
-            cursor.execute(query)
-
-            block_id_and_hash = {}
-            for block_id, _hash in cursor:
-                block_id_and_hash[block_id] = _hash
-
-            return (block_id_and_hash)
-            # We get all the recorded blocks with their hashes
-
-    def compare_with_db(self, number_and_hash):
-
-        self.number_and_hash = number_and_hash
-        new_number_and_hash = {}
-
-        for number, _hash in number_and_hash.items():
-
-            with open(f'{transactions_folder}/{number}.txt', 'rb') as file:
-                block = file.read()
-                hash_block = hashlib.md5(block).hexdigest()
-                new_number_and_hash[number] = hash_block
-
-        return print('Data not changed' if number_and_hash ==
-                     new_number_and_hash else 'Data changed!!!')
-        # And here we open each block (file), calculate its hash and write it
-        # to dict, then compare this dict with the database#
+transactions_folder = "transactions"
 
 
-if __name__ == '__main__':
+@dataclass
+class BlockData:
+    sender: str
+    amount: str
+    reciever: str
+    pre_hash: str
+    next_number: int
 
-    blockchain = Blockchain()  # creating a class object
 
-    with sqlite3.connect("blockchain.db") as db:  # creating an empty database
+def calculate_last_hash_and_number() -> tuple:
+    if not os.path.exists(transactions_folder):
+        os.makedirs(transactions_folder)
+        with open(f"{transactions_folder}/1.txt", "w") as file:
+            file.write("This is genesis block!")
+    """
+    In short, if there is no transactions folder,
+    then we create it in short and add the first
+    block to it (in the blockchain it is called genesis)
+    """
+    list_blocks = []
+    for file in os.listdir(transactions_folder):
+        if file.endswith(".txt"):
+            list_blocks.append(int(file.split(".")[0]))
+    path = f"{transactions_folder}/{sorted(list_blocks)[-1]}.txt"
+    with open(path, "rb") as pre_block:
+        pre_block = pre_block.read()
+        pre_hash = hashlib.md5(pre_block).hexdigest()
+    return (pre_hash, max(list_blocks) + 1)
 
-        cursor = db.cursor()
-        query_start = """ CREATE TABLE IF NOT EXISTS blockchain(
+def create_block(block_data: BlockData):
+    next_number = block_data.next_number
+    creation_timezone = pytz.timezone("Europe/Moscow")
+    time_of_creation = datetime.now(creation_timezone)
+    time_of_creation = time_of_creation.strftime("%H:%M:%S %Y-%m-%d")
+    next_number_path = f"{transactions_folder}/{next_number}.txt"
+    with open(next_number_path, "w") as next_block:
+        data = [f"From: {block_data.sender}",
+                f"Amount: {block_data.amount}",
+                f"To whom: {block_data.reciever}", 
+                f"Time: {time_of_creation}",
+                f"Hash: {block_data.pre_hash}"]
+        data = "\n".join(data)
+        next_block.write(data)
+    block_path = f"{transactions_folder}/{next_number}.txt"
+    with open(block_path, "rb") as this_block:
+        this_block = this_block.read()
+        hash_this_block = hashlib.md5(this_block).hexdigest()
+    with connect("blockchain.db") as connection:
+        cursor = connection.cursor()
+        query = """
+        INSERT INTO blockchain (block_id, hash)
+        VALUES(?,?);
+        """
+        new_block = [(next_number, hash_this_block)]
+        cursor.executemany(query, new_block)
+        connection.commit()
+        cursor.close()
+    if os.name == "nt":
+        os.system("cls")
+    else:
+        os.system("clear")
+    print("Block is being created, please wait!")
+    for i in trange(100):
+        time.sleep(0.01)
+    if os.name == "nt":
+        os.system("cls")
+    else:
+        os.system("clear")
+    success_message = [f"All done! Block number {next_number} was created!"]
+    success_message.append("Your data:")
+    success_message.append(f"From: {block_data.sender}")
+    success_message.append(f"Amount: {amount}")
+    success_message.append(f"To whom: {block_data.reciever}")
+    success_message.append(f"Time: {time_of_creation}")
+    success_message = "\n".join(success_message)
+    return print(success_message)  # much easier to read now, right?
+
+def checking_blocks():
+    with connect("blockchain.db") as connection:
+        cursor = connection.cursor()
+        query = """
+        SELECT block_id, hash
+        FROM blockchain;
+        """
+        cursor.execute(query)
+        block_id_and_hash = {}
+        for block_id, current_hash in cursor:
+            block_id_and_hash[block_id] = current_hash
+        connection.commit()
+        cursor.close()
+        return block_id_and_hash
+        # We get all the recorded blocks with their hashes
+
+def compare_with_db(number_and_hash):
+    number_and_hash = number_and_hash
+    new_number_and_hash = {}
+    for number, _hash in number_and_hash.items():
+        block_path = f"{transactions_folder}/{number}.txt"
+        with open(block_path, "rb") as file:
+            block = file.read()
+            hash_block = hashlib.md5(block).hexdigest()
+            new_number_and_hash[number] = hash_block
+    if number_and_hash == new_number_and_hash:
+        result = "Data not changed"
+    else:
+        result = "Data changed!!!"
+    return print(result)
+    # And here we open each block (file), calculate its hash and write it
+    # to dict, then compare this dict with database
+
+
+if __name__ == "__main__":
+    with connect("blockchain.db") as connection:  # create an empty database
+        cursor = connection.cursor()
+        query_start = """
+        CREATE TABLE IF NOT EXISTS blockchain(
                 block_id INTEGER,
-                hash TEXT
-                ) """
+                hash TEXT);
+        """
         cursor.execute(query_start)
-
     try:
-        action = int(input('Create or check? 1/2 '))
-
+        action = int(input("Create or check? 1/2 "))
         if action == 1:
-
-            from_whom = input('Enter your name: ')
-            amount = input('Enter your amount: ')
-            to_whom = input('Enter to whom: ')
-
+            sender = input("Enter your name: ")
+            amount = input("Enter your amount: ")
+            reciever = input("Enter to whom: ")
             # This function gets the hash of the previous block and counts the
             # number of the next block
-            pre_new_and_next_block_number = blockchain.calculating_last_hash_and_number()
-
-            next_block = blockchain.create_block(
-                from_whom,
-                amount,
-                to_whom,
-                pre_new_and_next_block_number[0],
-                pre_new_and_next_block_number[1])  # Creating new block with from whom,amount,to whom,previous hash and next number
-
-        else:
+            next_block_info = calculate_last_hash_and_number()
+            next_block_hash, next_block_number = next_block_info
+            # Creating new block with from whom, amount, to whom, previous
+            # hash and next number
+            next_block_args = BlockData(sender=sender,
+                                        amount=amount,
+                                        reciever=reciever,
+                                        pre_hash=next_block_hash,
+                                        next_number=next_block_number)
+            next_block = create_block(next_block_args)
+        elif action == 2:
             # reading and returning numbers and hash from database
-            data = blockchain.checking_blocks()
+            data = checking_blocks()
             # We transfer data from the database and compare them with reading
             # hashes from each file
-            blockchain.compare_with_db(data)
-
+            compare_with_db(data)
+        else:
+            print("Input value wasn't recognised")
     except ValueError:
-        print('Error: data must be an integer!')
-
-    for_exit = input('Press to exit...')  # guess what it's for
+        print("Error: data must be an integer!")
+    except BaseException as e:
+        print("Unknown error occured:", str(e))
+    finally:
+        connection.commit()
+        cursor.close()
+        for_exit = input("Press to exit...")  # guess what it"s for

@@ -23,7 +23,7 @@ class BlockData:
     next_number: int
 
 
-def calculate_last_hash_and_number() -> tuple:
+def genesis_block():
     if not os.path.exists(transactions_folder):
         os.makedirs(transactions_folder)
         with open(f"{transactions_folder}/1.txt", "w") as file:
@@ -31,17 +31,28 @@ def calculate_last_hash_and_number() -> tuple:
     """
     In short, if there is no transactions folder,
     then we create it in short and add the first
-    block to it (in the blockchain it is called genesis)
+    block to it (in the blockchain it is called genesis block)
     """
+    # This func Check whether there is a genesis block(number 1) in transaction folder
+
+
+def last_number() -> int:
     list_blocks = []
     for file in os.listdir(transactions_folder):
         if file.endswith(".txt"):
             list_blocks.append(int(file.split(".")[0]))
-    path = f"{transactions_folder}/{sorted(list_blocks)[-1]}.txt"
+    return (max(list_blocks))
+    # This func return the number of last block from transaction folder
+
+
+def __hash__(last_number) -> str:
+    path = f"{transactions_folder}/{last_number}.txt"
     with open(path, "rb") as pre_block:
         pre_block = pre_block.read()
         pre_hash = hashlib.md5(pre_block).hexdigest()
-    return (pre_hash, max(list_blocks) + 1)
+    return (pre_hash)
+    # This func return hash of last block
+
 
 def create_block(block_data: BlockData):
     next_number = block_data.next_number
@@ -52,7 +63,7 @@ def create_block(block_data: BlockData):
     with open(next_number_path, "w") as next_block:
         data = [f"From: {block_data.sender}",
                 f"Amount: {block_data.amount}",
-                f"To whom: {block_data.reciever}", 
+                f"To whom: {block_data.reciever}",
                 f"Time: {time_of_creation}",
                 f"Hash: {block_data.pre_hash}"]
         data = "\n".join(data)
@@ -83,13 +94,15 @@ def create_block(block_data: BlockData):
     else:
         os.system("clear")
     success_message = [f"All done! Block number {next_number} was created!"]
-    success_message.append("Your data:")
+    success_message.append("Transaction data:")
     success_message.append(f"From: {block_data.sender}")
     success_message.append(f"Amount: {amount}")
     success_message.append(f"To whom: {block_data.reciever}")
     success_message.append(f"Time: {time_of_creation}")
     success_message = "\n".join(success_message)
-    return print(success_message)  # much easier to read now, right?
+    return print(success_message)
+    # This func create new block and return your transaction data message
+
 
 def checking_blocks():
     with connect("blockchain.db") as connection:
@@ -105,7 +118,8 @@ def checking_blocks():
         connection.commit()
         cursor.close()
         return block_id_and_hash
-        # We get all the recorded blocks with their hashes
+    # We get all the recorded blocks with their hashes
+
 
 def compare_with_db(number_and_hash):
     number_and_hash = number_and_hash
@@ -140,24 +154,20 @@ if __name__ == "__main__":
             sender = input("Enter your name: ")
             amount = input("Enter your amount: ")
             reciever = input("Enter to whom: ")
-            # This function gets the hash of the previous block and counts the
-            # number of the next block
-            next_block_info = calculate_last_hash_and_number()
-            next_block_hash, next_block_number = next_block_info
-            # Creating new block with from whom, amount, to whom, previous
-            # hash and next number
+            genesis_block()
+            next_block_number = last_number() + 1
+            pre_block_hash = __hash__(last_number())
+
             next_block_args = BlockData(sender=sender,
                                         amount=amount,
                                         reciever=reciever,
-                                        pre_hash=next_block_hash,
+                                        pre_hash=pre_block_hash,
                                         next_number=next_block_number)
             next_block = create_block(next_block_args)
         elif action == 2:
-            # reading and returning numbers and hash from database
-            data = checking_blocks()
-            # We transfer data from the database and compare them with reading
-            # hashes from each file
-            compare_with_db(data)
+
+            data = checking_blocks()  # reading and returning numbers and hash from database
+            compare_with_db(data) # We transfer data from the database and compare them with reading hashes from each file
         else:
             print("Input value wasn't recognised")
     except ValueError:
@@ -167,4 +177,4 @@ if __name__ == "__main__":
     finally:
         connection.commit()
         cursor.close()
-        for_exit = input("Press to exit...")  # guess what it"s for
+        for_exit = input("Press to exit...")  # guess what it's for

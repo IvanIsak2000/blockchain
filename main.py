@@ -140,7 +140,7 @@ def compare_with_db(number_and_hash):
 
 
 if __name__ == "__main__":
-    with connect("blockchain.db") as connection:  # Create an empty database
+    with connect("blockchain.db") as connection:  # create an empty database
         cursor = connection.cursor()
         query_start = """
         CREATE TABLE IF NOT EXISTS blockchain(

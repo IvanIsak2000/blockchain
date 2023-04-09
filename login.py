@@ -41,9 +41,8 @@ with dpg.window(**window_params) as login_window:
 
     def login_in_account(login, user_password):
         login_string = dpg.get_value("login")
-        user_password = dpg.get_value("password")
-        user_password = str(hash(user_password))  # hashed password
-        print(user_password)
+        user_password = str(dpg.get_value("password"))
+        # user_password = str(hash(user_password))  # hashed password
         with connect("blockchain_accounts.db") as connection:
             cursor = connection.cursor()
             query_check = """
@@ -67,7 +66,8 @@ with dpg.window(**window_params) as login_window:
         new_account_message.append(f"Login:{new_login}")
         new_account_message.append(f"Password:{new_password}")
         new_account_message = "\n".join(new_account_message)
-        password_hash = str(hash(new_password))  # hashed password
+        # password_hash = str(hash(new_password))  # hashed password
+        password_hash = str(new_password)
         with connect("blockchain_accounts.db") as connection:
             cursor = connection.cursor()
             query_check = """

@@ -6,21 +6,12 @@ app = Flask(__name__, template_folder='templates')
 def home():
     return render_template("home.html")
 
-
 @app.route("/signup/" )
 def signup():
-    print('чел вошёл в акк')
-    return render_template("signup.html")
-    
-
+    return render_template("signup.html") 
 @app.route("/signin/" )
 def signin():
     return render_template("signin.html")
-
-
-
-
-
 
 
 app.run(host="0.0.0.0",port=8000,debug=True)

@@ -18,7 +18,7 @@ This project is dedicated to Blockchain technology
 FUNCTONS
 --
 
-<a href ='README.local.md'>Local Blockchain</a>
+<a href ='local/README.local.md'>Local Blockchain</a>
 ==
 1. Create a blocks
 2. Integrity check 
@@ -26,7 +26,7 @@ FUNCTONS
 
 
 
-<a href ='README.website.md'>Website Blockchain</a>
+<a href ='website/README.website.md'>Website Blockchain</a>
 ==
 1. Sign in 
 2. Sign up

@@ -1,0 +1,31 @@
+body {
+  background-color: powderblue;
+  color: midnightblue;
+}
+
+.navbar-custom {
+  background-color: #023047;
+}
+
+.navbar-custom .navbar-brand,
+.navbar-custom .navbar-text {
+  color: darkturquoise;
+}
+
+.btn {
+  color: black !important;
+}
+
+.btn-primary, .btn-primary:hover,
+.btn-primary:active, .btn-primary:visited {
+  background-color: tomato !important;
+}
+
+.btn-secondary, .btn-secondary:hover,
+.btn-secondary:active, .btn-secondary:visited {
+  background-color: gold !important;
+}
+
+.list-group {
+  display: inline-block;
+}

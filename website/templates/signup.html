@@ -1,60 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<style>
-body{
-
-  background-color: #4e1667
-}
-
-.page2-text {
-  top: 84px;
-  left: 370px;
-  color: #d48ff6;
-  position: absolute;
-  font-size: 120px;
-}
-.page2-textinput {
-  top: 376px;
-  left: 670px;
-  width: 431px;
-  height: 42px;
-  position: absolute;
-  border-color: var(--dl-color-gray-black);
-  border-width: 1px;
-}
-.page2-textinput1 {
-  top: 473px;
-  left: 670px;
-  width: 431px;
-  height: 42px;
-  position: absolute;
-}
-.page2-button {
-  top: 633px;
-  left: 740px;
-  width: 271px;
-  height: 92px;
-  position: absolute;
-  font-size: 30px;
-}
-
-</style>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sigh up</title>
-</head>
-<body>
-    <div>
-          <span class="page2-text">
-            <span>Create a new account:</span>
-            <br />
-          </span>
-          <input type="text" placeholder="nickname" class="page2-textinput input" />
-          <input type="text" placeholder="e-mail" class="page2-textinput1 input" />
-          <button class="page2-button button">Create!</button>
-      </div>
-    
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+{% include "form_nav_bar.html" %}
+<div class="container-fluid">
+  <h1>Create new account</h1>
+  <div class="row col-md-5">
+    <div class="input-group mb-3">
+      <span class="input-group-text">@</span>
+      <input type="text" class="form-control" placeholder="username"
+        aria-label="username" aria-describedby="basic-addon1">
+    </div>
+    <div class="input-group mb-3">
+      <input type="email" class="form-control" placeholder="email"
+        aria-label="email">
+    </div>
+    <div class="input-group mb-3">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

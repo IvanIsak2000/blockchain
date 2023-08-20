@@ -21,17 +21,13 @@ FUNCTONS
 <a href ='local/README.local.md'>Local Blockchain</a>
 ==
 1. Create a blocks
-2. Integrity check 
+2. Integrity check
 3. Database maintenance
-
 
 
 <a href ='website/README.website.md'>Website Blockchain</a>
 ==
-1. Sign in 
+1. Sign in
 2. Sign up
-3. Make transactions 
-
-  
- 
+3. Make transactions
 

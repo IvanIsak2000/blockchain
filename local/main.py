@@ -165,7 +165,6 @@ if __name__ == "__main__":
                                         next_number=next_block_number)
             next_block = create_block(next_block_args)
         elif action == 2:
-
             data = checking_blocks()  # reading and returning numbers and hash from database
             compare_with_db(data) # We transfer data from the database and compare them with reading hashes from each file
         else:
